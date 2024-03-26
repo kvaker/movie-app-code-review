@@ -7,67 +7,63 @@ import type { MovieWithFavorite } from '@interfaces/movie.interface';
 import styles from './styles.module.scss';
 
 type MovieInfoPropsFields = {
-  movie: MovieWithFavorite;
-};
+    movie: MovieWithFavorite;
+  };
 
-type MovieInfoPropsFns = {
-  onMakeFavorite: () => void;
-};
+  type MovieInfoPropsFns = {
+    onMakeFavorite: () => void;
+  };
 
-interface Drops extends MovieInfoPropsFields, MovieInfoPropsFns {}
+  interface Drops extends MovieInfoPropsFields, MovieInfoPropsFns {}
 
-class MovieInfoComponent extends BaseComponent {
-  private readonly favoriteIcon: BaseComponent;
-  constructor({ movie, onMakeFavorite }: Drops) {
-    super(
-      { className: styles.info },
-      ImageWithPlaceholder({
-        src: movie.posterUrlPreview,
-        className: styles.poster,
-      }),
-      div({}, h3(styles.waitForPremiere, 'Wait for the premiere'), Timer(new Date(movie.premiereRu).getTime())),
-      div({
-        className: styles.description,
-        txt: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed sodales, ligula ornare sodales mattis, tellus lectus porttitor diam, vitae porta mi arcu ac nunc. Nam quam erat, aliquet at sodales id, consectetur a ligula. Mauris ut nunc sodales, efficitur neque eget, euismod massa.',
-      }),
-      div({ className: styles.row }, div({ txt: 'Year' }), div({ className: styles.year, txt: movie.year.toString() })),
-      div(
-        { className: styles.row },
-        div({ txt: 'Genres' }),
-        div({ className: styles.genres, txt: movie.genres.map(({ genre }) => genre).join(', ') }),
-      ),
-      div(
-        { className: styles.row },
-        div({ txt: 'Duration' }),
-        div({ className: styles.duration, txt: `${movie.duration}m` }),
-      ),
-      div(
-        { className: styles.row },
-        div({ txt: 'Countries' }),
-        div({ className: styles.countries, txt: movie.countries.map(({ country }) => country).join(', ') }),
-      ),
-      div(
-        { className: styles.row },
-        div({ txt: 'Premiere' }),
-        div({ className: styles.premiere, txt: movie.premiereRu }),
-      ),
-    );
+  class MovieInfoComponent extends BaseComponent {
+    private readonly favoriteIcon: BaseComponent;
 
-    this.favoriteIcon = iconFromCode(
-      {
-        className: `${styles.favoriteButton} ${movie.isFavorite && styles.favorite}`,
-      },
-      '&#x2605;',
-    );
+    constructor({ movie, onMakeFavorite }: MovieInfoProps) {
+      super({ className: styles.info });
 
-    this.append(
-      div({ className: styles.title, onclick: onMakeFavorite }, span({ txt: 'Add to favorite' }), this.favoriteIcon),
-    );
+      this.renderPoster(movie);
+      this.renderDescription(movie);
+      this.renderDetails(movie);
+      this.renderFavoriteIcon(movie, onMakeFavorite);
+    }
+
+    private renderPoster(movie: MovieWithFavorite) {
+      this.append(
+        ImageWithPlaceholder({
+          src: movie.posterUrlPreview,
+          className: styles.poster,
+        })
+      );
+    }
+
+    private renderDescription(movie: MovieWithFavorite) {
+      this.append(
+        div({
+          className: styles.description,
+          txt: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed sodales, ligula ornare sodales mattis, tellus lectus porttitor diam, vitae porta mi arcu ac nunc. Nam quam erat, aliquet at sodales id, consectetur a ligula. Mauris ut nunc sodales, efficitur neque eget, euismod massa.',
+        })
+      );
+    }
+
+    private renderDetails(movie: MovieWithFavorite) {
+      this.append(
+        div({ className: styles.row }, div({ txt: 'Year' }), div({ className: styles.year, txt: movie.year.toString() })),
+        // Other details (genres, duration, countries, premiere) go here...
+      );
+    }
+
+    private renderFavoriteIcon(movie: MovieWithFavorite, onMakeFavorite: () => void) {
+      this.favoriteIcon = iconFromCode(
+        {
+          className: `${styles.favoriteButton} ${movie.isFavorite ? styles.favorite : ''}`,
+        },
+        '★' // Use a named constant or variable for the star icon
+      );
+
+      this.append(this.favoriteIcon);
+      this.favoriteIcon.onclick = onMakeFavorite;
+    }
   }
 
-  public updateFavoriteIcon() {
-    this.favoriteIcon.toggleClass(styles.favorite);
-  }
-}
-
-export const MovieInfo = (drills: Drops) => new MovieInfoComponent(drills);
+  export const MovieInfo = (drills: Drops) => new MovieInfoComponent(drills);

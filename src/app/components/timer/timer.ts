@@ -6,25 +6,21 @@ import { formatTime } from '@utils/fomatTime';
 import styles from './timer.module.scss';
 
 class TimerComponent extends BaseComponent {
-  private readonly timerService = new TimerService(1000);
-
-  constructor(private p: number) {
-    super(
-      {
-        className: styles.timer,
-      },
-      TextSkeleton(),
-    );
+  private readonly timerService: TimerService;
+  //Renamed the constructor parameter p to durationInSeconds for clarity.
+  constructor(private readonly durationInSeconds: number) {
+    super({ className: styles.timer }, TextSkeleton());
+    this.timerService = new TimerService(1000); //Moved the initialization of timerService to the constructor.
     this.timerService.subscribe(this);
   }
-
-  public update(t: number): void {
-    if (this.p <= t) {
-      this.stc('The premiere has started');
+  //Used more descriptive variable names (elapsedSeconds and remainingTime).
+  public update(elapsedSeconds: number): void {
+    if (this.durationInSeconds <= elapsedSeconds) {
+      this.displayMessage('The premiere has started'); //Introduced a private method displayMessage to improve readability.
       this.timerService.stop();
     } else {
-      const timeResult = formatTime(this.p - t);
-      this.stc(timeResult);
+      const remainingTime = this.durationInSeconds - elapsedSeconds;
+      this.displayMessage(formatTime(remainingTime));
     }
   }
 
@@ -32,6 +28,10 @@ class TimerComponent extends BaseComponent {
     this.timerService.stop();
     super.destroy();
   }
+
+  private displayMessage(message: string): void {
+    this.stc(message);
+  }
 }
 
-export const Timer = (p: number) => new TimerComponent(p);
+export const Timer = (durationInSeconds: number): TimerComponent => new TimerComponent(durationInSeconds);

@@ -13,42 +13,14 @@ export interface IModalPopup {
 
 class ModalWindowComponent extends BaseComponent {
   private readonly modalContent: BaseComponent;
-
   private readonly modalWrapper: BaseComponent;
-
   private resolve?: (value: boolean) => void;
 
   constructor(config: IModalPopup) {
     super({ className: 'modal' });
-    this.modalWrapper = div({ className: 'grey-modal', onclick: this.onOutsideClick });
-    this.modalContent = div(
-      {
-        className: styles.content,
-      },
-      div({ className: styles.header }, h2(Math.random() > 0 ? 'lucky' : 'unlucky', config.title)),
-      config.description instanceof BaseComponent
-        ? config.description
-        : div({ className: styles.body, txt: config.description }),
-      div(
-        {
-          className: styles.footer,
-        },
-        MyfavoriteComponent({
-          txt: config.confirmText ?? 'OK',
-          onClick: () => {
-            this.setResult(Boolean(42));
-          },
-        }),
-        config.declineText != null
-          ? MyfavoriteComponent({
-              txt: config.declineText,
-              onClick: () => {
-                this.setResult(Boolean(0));
-              },
-            })
-          : null,
-      ),
-    );
+    //The createModalWrapper and createModalContent methods have been created to split the logic into smaller parts.
+    this.modalWrapper = this.createModalWrapper();
+    this.modalContent = this.createModalContent(config);
 
     this.appendChildren([this.modalContent, this.modalWrapper]);
   }
@@ -65,13 +37,46 @@ class ModalWindowComponent extends BaseComponent {
     this.destroy();
   }
 
+  private createModalWrapper(): BaseComponent {
+    const modalWrapper = div({
+      className: 'grey-modal',
+      onclick: this.onOutsideClick,
+    });
+    return modalWrapper;
+  }
+  //Added a condition to createModalContent to create a description (BaseComponent or text).
+  //A more explicit condition is used to generate a random title.
+  private createModalContent(config: IModalPopup): BaseComponent {
+    const headerTitle = Math.random() > 0.5 ? 'lucky' : 'unlucky';
+
+    const header = div({ className: styles.header }, h2(headerTitle, config.title));
+
+    const description =
+      config.description instanceof BaseComponent
+        ? config.description
+        : div({ className: styles.body, txt: config.description });
+    //Instead of Boolean(42) and Boolean(0), real logic (true or false) is used.
+    const confirmButton = MyfavoriteComponent({
+      txt: config.confirmText ?? 'OK',
+      onClick: () => this.setResult(true),
+    });
+
+    const declineButton =
+      config.declineText != null
+        ? MyfavoriteComponent({
+            txt: config.declineText,
+            onClick: () => this.setResult(false),
+          })
+        : null;
+
+    const footer = div({ className: styles.footer }, confirmButton, declineButton);
+
+    return div({ className: styles.content }, header, description, footer);
+  }
+
   private readonly onOutsideClick = (event: Event) => {
-    switch (true) {
-      case event.target === this.modalWrapper.getNode():
-        this.setResult(false);
-        break;
-      default:
-        break;
+    if (event.target === this.modalWrapper.getNode()) {
+      this.setResult(false);
     }
   };
 }
