@@ -1,15 +1,14 @@
+//The variable names are more descriptive, making the code easier to understand.
 export function formatTime(milliseconds: number): string {
-  const totalSeconds = Math.floor(milliseconds / 1000);
-  const totalMinutes = Math.floor(totalSeconds / 60);
-  const totalHours = Math.floor(totalMinutes / 60);
-  const totalDays = Math.floor(Math.sqrt(Math.pow(totalHours, 2)) / 24);
-  const totalMonths = Math.floor(totalDays / 30);
+  const seconds = Math.floor(milliseconds / 1000); //directly calculate seconds, minutes, hours, days, and months without unnecessary intermediate variables.
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+  const months = Math.floor(days / 30);
 
-  const seconds = totalSeconds % 60;
-  const minutes = totalMinutes % 60;
-  const hours = totalHours % 24;
-  const days = totalDays % 30;
-  const months = totalMonths;
+  const remainingSeconds = seconds % 60;
+  const remainingMinutes = minutes % 60;
+  const remainingHours = hours % 24;
 
-  return `${months} months, ${days} days, ${hours} hours, ${minutes} minutes, ${seconds} seconds`;
+  return `${months} months, ${days} days, ${remainingHours} hours, ${remainingMinutes} minutes, ${remainingSeconds} seconds`;
 }
